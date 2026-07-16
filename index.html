@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Татсумаки Калькулятор</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <section id="loginView" class="login-view">
+      <div class="login-card glass">
+        <span class="brand-pill">Tatsumaki Calculator</span>
+        <h1>Татсумаки Калькулятор</h1>
+        <p class="subtitle">Вход по коду администратора или участника</p>
+
+        <label for="accessCodeInput">Код доступа</label>
+        <div class="login-row">
+          <input id="accessCodeInput" type="password" placeholder="Введите код" autocomplete="off" />
+          <button id="loginBtn" class="primary-btn">Войти</button>
+        </div>
+        <p id="loginMessage" class="message"></p>
+
+        <div class="hint-box">
+          <strong>Демо:</strong>
+          <span>admin — <code>CHANGE_ME_ADMIN</code></span>
+          <span>участник — <code>participant123</code></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="dashboardView" class="dashboard-view hidden">
+      <header class="site-header glass">
+        <div>
+          <div class="brand-pill">Татсумаки Калькулятор</div>
+          <h2>Панель крафтов</h2>
+        </div>
+
+        <nav class="header-actions">
+          <span id="roleBadge" class="role-badge"></span>
+          <button id="themeToggleBtn" class="ghost-btn">Сменить тему</button>
+          <button id="logoutBtn" class="ghost-btn">Выйти</button>
+        </nav>
+      </header>
+
+      <div class="tabs-row glass">
+        <button class="tab-btn active" data-tab-target="itemsTab">Предметы</button>
+        <button class="tab-btn" data-tab-target="recipesTab">Крафты</button>
+        <button class="tab-btn" data-tab-target="calculatorTab">Калькулятор</button>
+      </div>
+
+      <main class="main-grid">
+        <section id="itemsTab" class="tab-panel">
+          <div class="panel-head">
+            <div>
+              <h3>База предметов</h3>
+              <p>Название предмета + сохраненный <code>/mt hand</code></p>
+            </div>
+            <div class="panel-actions">
+              <button id="addItemBtn" class="primary-btn">Добавить предмет</button>
+              <button id="exportJsonBtn" class="ghost-btn">Экспорт JSON</button>
+              <button id="importJsonBtn" class="ghost-btn">Импорт JSON</button>
+              <input id="importFileInput" type="file" accept="application/json" hidden />
+            </div>
+          </div>
+
+          <div class="search-row">
+            <input id="itemSearchInput" type="text" placeholder="Поиск по названию или /mt hand" />
+          </div>
+
+          <div id="itemsList" class="items-list"></div>
+        </section>
+
+        <section id="recipesTab" class="tab-panel hidden">
+          <div class="panel-head">
+            <div>
+              <h3>Конструктор крафта</h3>
+              <p>Сетка 3×3 + быстрый выбор итогового ресурса и количества</p>
+            </div>
+            <div class="panel-actions">
+              <button id="clearRecipeBtn" class="ghost-btn">Очистить сетку</button>
+              <button id="saveRecipeBtn" class="primary-btn">Сохранить крафт</button>
+            </div>
+          </div>
+
+          <div class="recipe-builder-grid">
+            <div class="craft-card glass-subtle">
+              <div class="card-title">Сетка верстака</div>
+              <div id="craftGrid" class="craft-grid"></div>
+            </div>
+
+            <div class="result-card glass-subtle">
+              <div class="card-title">Итог</div>
+              <label for="resultItemSelect">Предмет на выходе</label>
+              <select id="resultItemSelect"></select>
+
+              <label for="resultQtyInput">Количество на выходе</label>
+              <input id="resultQtyInput" type="number" min="1" step="1" value="1" />
+
+              <div class="code-preview-box">
+                <span>Превью:</span>
+                <textarea id="recipeCodePreview" readonly></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-head panel-head-secondary">
+            <div>
+              <h3>Сохраненные крафты</h3>
+              <p>Быстрый просмотр, редактирование и экспорт шаблона</p>
+            </div>
+          </div>
+          <div id="recipesList" class="recipes-list"></div>
+        </section>
+
+        <section id="calculatorTab" class="tab-panel hidden">
+          <div class="panel-head">
+            <div>
+              <h3>Калькулятор ресурсов</h3>
+              <p>Подсчет всех необходимых ресурсов для выбранного предмета</p>
+            </div>
+          </div>
+
+          <div class="calculator-box glass-subtle">
+            <div class="calculator-controls">
+              <div>
+                <label for="calcTargetSelect">Предмет</label>
+                <select id="calcTargetSelect"></select>
+              </div>
+              <div>
+                <label for="calcQtyInput">Количество</label>
+                <input id="calcQtyInput" type="number" min="1" step="1" value="1" />
+              </div>
+              <div class="calc-button-wrap">
+                <button id="calculateBtn" class="primary-btn">Рассчитать</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="calculatorResult" class="calculator-result"></div>
+        </section>
+      </main>
+    </section>
+  </div>
+
+  <dialog id="itemModal" class="modal">
+    <form method="dialog" class="modal-card">
+      <div class="modal-head">
+        <h3 id="itemModalTitle">Добавить предмет</h3>
+        <button type="button" id="closeItemModalBtn" class="icon-btn">✕</button>
+      </div>
+
+      <label for="itemNameInput">Название</label>
+      <input id="itemNameInput" type="text" placeholder="Например: Изумрудный меч" />
+
+      <label for="itemCommandInput">Значение /mt hand</label>
+      <textarea id="itemCommandInput" rows="4" placeholder="Например: Item.of('minecraft:diamond_sword')"></textarea>
+
+      <p id="itemModalMessage" class="message"></p>
+
+      <div class="modal-actions">
+        <button type="button" id="cancelItemModalBtn" class="ghost-btn">Отмена</button>
+        <button type="button" id="saveItemModalBtn" class="primary-btn">Сохранить</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="pickerModal" class="modal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>Выбор предмета</h3>
+        <button type="button" id="closePickerModalBtn" class="icon-btn">✕</button>
+      </div>
+
+      <input id="pickerSearchInput" type="text" placeholder="Поиск предмета" />
+      <div class="picker-tools">
+        <button id="clearPickerSelectionBtn" class="ghost-btn">Очистить слот</button>
+      </div>
+      <div id="pickerItemsList" class="picker-items"></div>
+    </div>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
