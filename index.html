@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Крафт-Конструктор</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0f0c;
+    --panel:#101a14;
+    --wood:#12c96b;
+    --wood-dark:#1c3a29;
+    --slot:#d6fbe4;
+    --slot-border:#1c3a29;
+    --stone:#4a5a51;
+    --cream:#eafff1;
+    --text-dim:#8fd6ac;
+    --grass:#12c96b;
+    --grass-dark:#0a6b39;
+    --redstone:#e0443e;
+    --glow:#39ff8f;
+    --surface-2:#0c1712;
+    --surface-3:#132018;
+    --surface-3-active:#173524;
+    --code-bg:#050b07;
+    --code-text:#7fe8a8;
+    --on-accent:#04160c;
+    --font-head:'Orbitron', sans-serif;
+    --font-body:'Rajdhani', sans-serif;
+  }
+  html[data-theme="light"]{
+    --bg:#f3faf5;
+    --panel:#ffffff;
+    --wood-dark:#bfe6cf;
+    --slot:#eafff1;
+    --slot-border:#bfe6cf;
+    --stone:#c3d2c9;
+    --cream:#0c2216;
+    --text-dim:#3d6b4f;
+    --grass:#0fae5c;
+    --grass-dark:#0a6b39;
+    --redstone:#d13a30;
+    --glow:#0fae5c;
+    --surface-2:#eefaf2;
+    --surface-3:#e4f6ea;
+    --surface-3-active:#c9ecd6;
+    --code-bg:#0c2216;
+    --code-text:#8bf3b7;
+    --on-accent:#ffffff;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse 900px 500px at 50% -10%, rgba(18,201,107,0.14), transparent 60%),
+      var(--bg);
+    color:var(--cream);
+    font-family:var(--font-body);
+    font-size:19px;
+    font-weight:500;
+    min-height:100vh;
+    padding:24px 16px 60px;
+    transition:background .2s ease, color .2s ease;
+  }
+  h1{
+    font-family:var(--font-head);
+    font-weight:900;
+    font-size:26px;
+    text-align:center;
+    color:var(--glow);
+    text-shadow:0 0 6px rgba(18,201,107,0.5);
+    letter-spacing:3px;
+    margin:0 0 6px;
+  }
+  .theme-toggle{
+    position:fixed;
+    top:16px;right:16px;
+    font-family:var(--font-head);
+    font-size:11px;
+    letter-spacing:1px;
+    background:var(--panel);
+    border:1px solid var(--wood-dark);
+    color:var(--text-dim);
+    padding:8px 12px;
+    border-radius:2px;
+    cursor:pointer;
+    z-index:10;
+  }
+  .theme-toggle:hover{border-color:var(--glow);color:var(--glow);}
+  h1, .subtitle, .tabs, .panel{ position:relative; z-index:1; }
+  .subtitle{
+    text-align:center;
+    color:var(--text-dim);
+    font-size:18px;
+    letter-spacing:1px;
+    margin-bottom:24px;
+    text-transform:uppercase;
+  }
+  .tabs{
+    display:flex;
+    justify-content:center;
+    gap:8px;
+    margin-bottom:24px;
+    flex-wrap:wrap;
+  }
+  .tab-btn{
+    font-family:var(--font-head);
+    font-weight:700;
+    font-size:12px;
+    letter-spacing:1px;
+    background:transparent;
+    border:2px solid var(--wood-dark);
+    color:var(--text-dim);
+    padding:10px 18px;
+    cursor:pointer;
+    border-radius:2px;
+    transition:all .15s ease;
+  }
+  .tab-btn.active{background:var(--grass);border-color:var(--glow);color:var(--on-accent);box-shadow:0 0 14px rgba(57,255,143,0.6);}
+  .tab-btn:hover{border-color:var(--glow);color:var(--cream);}
+
+  .panel{
+    max-width:900px;
+    margin:0 auto;
+    background:var(--panel);
+    border:1px solid var(--wood-dark);
+    border-top:3px solid var(--glow);
+    padding:24px;
+    box-shadow:0 0 40px rgba(18,201,107,0.08), 0 6px 20px rgba(0,0,0,0.5);
+    border-radius:3px;
+  }
+  .panel h2{
+    font-family:var(--font-head);
+    font-weight:700;
+    font-size:14px;
+    letter-spacing:2px;
+    margin-top:0;
+    color:var(--glow);
+    text-transform:uppercase;
+    border-bottom:1px solid var(--wood-dark);
+    padding-bottom:10px;
+  }
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
+  input[type=text], input[type=number], select{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:18px;
+    background:var(--surface-2);
+    color:var(--cream);
+    border:1px solid var(--wood-dark);
+    border-radius:2px;
+    padding:8px 10px;
+  }
+  input:focus, select:focus{outline:none;border-color:var(--glow);box-shadow:0 0 8px rgba(57,255,143,0.5);}
+  button.action{
+    font-family:var(--font-head);
+    font-weight:700;
+    font-size:11px;
+    letter-spacing:1px;
+    background:var(--grass);
+    border:1px solid var(--glow);
+    color:var(--on-accent);
+    border-radius:2px;
+    padding:10px 16px;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  button.action:hover{box-shadow:0 0 12px rgba(57,255,143,0.7);filter:brightness(1.08);}
+  button.action.danger{background:var(--redstone);border-color:#ff7a70;color:#fff;}
+  button.action.ghost{background:transparent;color:var(--glow);}
+  button.action:disabled{background:var(--stone);border-color:#5b5b5b;cursor:not-allowed;color:#ccc;box-shadow:none;}
+  button.icon-btn{
+    font-family:var(--font-body);
+    font-size:14px;
+    background:transparent;
+    border:1px solid var(--wood-dark);
+    color:var(--text-dim);
+    border-radius:2px;
+    padding:3px 8px;
+    cursor:pointer;
+  }
+  button.icon-btn:hover{border-color:var(--glow);color:var(--glow);}
+
+  table{width:100%;border-collapse:collapse;margin-top:6px;}
+  th,td{text-align:left;padding:8px;border-bottom:1px solid var(--wood-dark);}
+  th{font-family:var(--font-head);font-size:11px;letter-spacing:1px;color:var(--text-dim);text-transform:uppercase;}
+  td.mono{font-family:'Courier New',monospace;font-size:16px;color:var(--text-dim);}
+  .empty-note{color:var(--text-dim);font-style:italic;padding:14px 0;}
+
+  /* crafting grid */
+  .craft-area{display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;margin:20px 0;}
+  .grid3{
+    display:grid;
+    grid-template-columns:repeat(3,64px);
+    grid-template-rows:repeat(3,64px);
+    gap:6px;
+    background:var(--surface-2);
+    border:2px solid var(--wood-dark);
+    padding:10px;
+    border-radius:3px;
+  }
+  .slot{
+    background:var(--surface-3);
+    border:1px solid var(--slot-border);
+    box-shadow:inset 0 0 0 1px rgba(18,201,107,0.15);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:11px;
+    text-align:center;
+    color:var(--text-dim);
+    cursor:pointer;
+    padding:2px;
+    line-height:1.1;
+    word-break:break-word;
+    border-radius:2px;
+    transition:all .15s ease;
+  }
+  .slot:hover{border-color:var(--glow);box-shadow:0 0 10px rgba(57,255,143,0.4);}
+  .slot.filled{background:var(--surface-3-active);color:var(--glow);font-weight:700;border-color:var(--glow);}
+  .arrow{font-family:var(--font-head);font-size:24px;color:var(--glow);text-shadow:0 0 10px rgba(57,255,143,0.7);}
+  .output-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;}
+  .slot.output{width:74px;height:74px;background:var(--surface-3);border-color:var(--glow);box-shadow:0 0 16px rgba(57,255,143,0.35);}
+  .count-input{width:60px;text-align:center;}
+
+  /* modal */
+  .overlay{
+    position:fixed;inset:0;background:rgba(2,8,5,0.75);
+    display:none;align-items:center;justify-content:center;z-index:50;
+  }
+  .overlay.show{display:flex;}
+  .modal{
+    background:var(--panel);
+    border:1px solid var(--wood-dark);
+    border-top:3px solid var(--glow);
+    padding:20px;
+    width:min(420px,90vw);
+    max-height:80vh;
+    overflow-y:auto;
+    box-shadow:0 0 40px rgba(18,201,107,0.15);
+    border-radius:3px;
+  }
+  .modal h3{font-family:var(--font-head);font-weight:700;font-size:13px;letter-spacing:1px;color:var(--glow);margin-top:0;text-transform:uppercase;}
+  .picker-item{
+    padding:8px;border-bottom:1px solid var(--wood-dark);cursor:pointer;
+    display:flex;justify-content:space-between;font-size:17px;
+  }
+  .picker-item:hover{background:var(--surface-3);color:var(--glow);}
+  .close-x{float:right;cursor:pointer;font-family:var(--font-head);font-size:11px;color:var(--redstone);}
+
+  code.output-box{
+    display:block;
+    background:var(--code-bg);
+    color:var(--code-text);
+    font-family:'Courier New',monospace;
+    font-size:15px;
+    padding:16px;
+    white-space:pre-wrap;
+    border:1px solid var(--wood-dark);
+    border-left:3px solid var(--glow);
+    margin-top:14px;
+    min-height:60px;
+    border-radius:2px;
+  }
+  .hint{font-size:15px;color:var(--text-dim);margin-top:4px;}
+  .saved-list{margin-top:18px;}
+  .saved-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--wood-dark);}
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle">☀ светлая тема</button>
+<h1>TATSUMAKI // CRAFT ENGINE</h1>
+<div class="subtitle">Психокинетическая база предметов + генератор рецептов .zs</div>
+
+<div class="tabs">
+  <button class="tab-btn active" data-tab="db">База предметов</button>
+  <button class="tab-btn" data-tab="craft">Верстак</button>
+</div>
+
+<!-- DATABASE TAB -->
+<div class="panel" id="tab-db">
+  <h2>База предметов</h2>
+  <div class="row">
+    <button class="action" id="openAddItem">+ Добавить предмет</button>
+    <span class="hint">Открывается отдельным окном</span>
+  </div>
+  <div class="row" style="flex-direction:column;align-items:stretch;">
+    <label class="hint">Массовый импорт: JSON [{"name":"...","id":"..."}] или строки вида "Название;id" (по одной на строку)</label>
+    <textarea id="importText" rows="4" placeholder='[{"name":"Солнечная панель","id":"lolienergistics:solar_panel"}]&#10;или&#10;Солнечная панель;lolienergistics:solar_panel' style="font-family:var(--font-body);font-size:16px;background:var(--surface-2);color:var(--cream);border:1px solid var(--wood-dark);border-radius:2px;padding:8px;"></textarea>
+    <div class="row" style="margin-top:8px;">
+      <button class="action" id="importBtn">Импортировать текст</button>
+      <label class="action ghost" style="cursor:pointer;">
+        Импортировать файл (.json/.csv)
+        <input type="file" id="importFile" accept=".json,.csv,.txt" style="display:none;">
+      </label>
+      <span class="hint" id="importStatus"></span>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Название</th><th>ID (/mt hand)</th><th>Копия</th><th></th></tr></thead>
+    <tbody id="itemsBody"></tbody>
+  </table>
+  <div class="empty-note" id="emptyNote" style="display:none;">Пока пусто. Добавь первый предмет через кнопку выше.</div>
+</div>
+
+<!-- CRAFT TAB -->
+<div class="panel" id="tab-craft" style="display:none;">
+  <h2>Способ записи рецепта</h2>
+  <div class="row">
+    <select id="recipeType">
+      <option value="verstak">Верстак (3×3, shaped)</option>
+      <option value="furnace" disabled>Печь — скоро</option>
+      <option value="anvil" disabled>Наковальня — скоро</option>
+    </select>
+  </div>
+
+  <div class="row">
+    <input type="text" id="recipeName" placeholder="имя рецепта (например my_recipe)" style="flex:1;min-width:220px;">
+  </div>
+
+  <div class="craft-area">
+    <div class="grid3" id="grid3"></div>
+    <div class="arrow">➜</div>
+    <div class="output-wrap">
+      <div class="slot output" id="outputSlot">пусто</div>
+      <input type="number" id="outputCount" class="count-input" value="1" min="1">
+    </div>
+  </div>
+
+  <div class="row">
+    <button class="action" id="genCode">Сгенерировать .zs код</button>
+    <button class="action" id="saveRecipe">Сохранить рецепт</button>
+    <button class="action danger" id="clearGrid">Очистить сетку</button>
+  </div>
+
+  <code class="output-box" id="codeOutput">// код появится здесь</code>
+  <div class="row" style="margin-top:8px;">
+    <button class="action" id="copyCode">Скопировать код</button>
+  </div>
+
+  <div class="saved-list">
+    <h2>Сохранённые рецепты</h2>
+    <div id="savedBody"></div>
+    <div class="empty-note" id="savedEmpty" style="display:none;">Сохранённых рецептов пока нет.</div>
+
+    <div class="row" style="margin-top:14px;">
+      <button class="action" id="combineBtn">Собрать все в один .zs файл</button>
+      <button class="action ghost" id="copyCombined">Скопировать всё</button>
+      <button class="action ghost" id="downloadCombined">Скачать recipes.zs</button>
+    </div>
+    <code class="output-box" id="combinedOutput">// нажми "Собрать все в один .zs файл"</code>
+  </div>
+</div>
+
+<!-- ADD ITEM MODAL -->
+<div class="overlay" id="addItemOverlay">
+  <div class="modal">
+    <span class="close-x" id="closeAddItem">✕ закрыть</span>
+    <h3>Новый предмет</h3>
+    <div class="row" style="flex-direction:column;align-items:stretch;">
+      <label class="hint">Название предмета</label>
+      <input type="text" id="newItemName" placeholder="например: Алмазный меч">
+      <label class="hint" style="margin-top:8px;">ID предмета (вывод команды /mt hand)</label>
+      <input type="text" id="newItemId" placeholder="например: minecraft:diamond_sword">
+      <div class="hint" id="addItemError" style="color:#e0443e;display:none;margin-top:6px;">Заполни оба поля</div>
+    </div>
+    <div class="row">
+      <button class="action" id="confirmAddItem">Сохранить в базу</button>
+    </div>
+  </div>
+</div>
+
+<!-- PICK ITEM MODAL (for grid slots) -->
+<div class="overlay" id="pickOverlay">
+  <div class="modal">
+    <span class="close-x" id="closePick">✕ закрыть</span>
+    <h3>Выбрать предмет</h3>
+    <input type="text" id="pickSearch" placeholder="поиск..." style="width:100%;margin-bottom:10px;">
+    <button class="action danger" id="clearSlotBtn" style="margin-bottom:10px;">Очистить слот</button>
+    <div id="pickList"></div>
+  </div>
+</div>
+
+<script>
+let items = [];
+let grid = new Array(9).fill(null);
+let output = null;
+let activeSlotIndex = null; // null = 9 means output slot
+let savedRecipes = [];
+
+async function loadItems(){
+  try{
+    const raw = localStorage.getItem('items-db');
+    items = raw ? JSON.parse(raw) : [];
+  }catch(e){ items = []; }
+  renderItems();
+}
+async function saveItems(){
+  localStorage.setItem('items-db', JSON.stringify(items));
+}
+async function loadRecipes(){
+  try{
+    const raw = localStorage.getItem('recipes-db');
+    savedRecipes = raw ? JSON.parse(raw) : [];
+  }catch(e){ savedRecipes = []; }
+  renderSaved();
+}
+async function saveRecipesToStorage(){
+  localStorage.setItem('recipes-db', JSON.stringify(savedRecipes));
+}
+
+function renderItems(){
+  const body = document.getElementById('itemsBody');
+  const empty = document.getElementById('emptyNote');
+  body.innerHTML = '';
+  if(items.length === 0){ empty.style.display='block'; return; }
+  empty.style.display='none';
+  items.forEach((it, idx)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${escapeHtml(it.name)}</td><td class="mono">${escapeHtml(it.id)}</td>
+      <td><button class="icon-btn" data-copy="${idx}">⧉ копир.</button></td>
+      <td><button class="action danger" data-idx="${idx}">Удалить</button></td>`;
+    body.appendChild(tr);
+  });
+  body.querySelectorAll('button[data-idx]').forEach(btn=>{
+    btn.onclick = async ()=>{
+      items.splice(parseInt(btn.dataset.idx),1);
+      await saveItems();
+      renderItems();
+    };
+  });
+  body.querySelectorAll('button[data-copy]').forEach(btn=>{
+    btn.onclick = ()=> copyToClipboard(items[parseInt(btn.dataset.copy)].name, btn);
+  });
+}
+
+async function copyToClipboard(text, btn){
+  try{ await navigator.clipboard.writeText(text); }catch(e){/* clipboard unavailable */}
+  if(btn){
+    const old = btn.textContent;
+    btn.textContent = '✓ скопир.';
+    setTimeout(()=>{ btn.textContent = old; }, 1200);
+  }
+}
+
+function escapeHtml(s){
+  return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// theme toggle
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  themeBtn.textContent = t === 'light' ? '● тёмная тема' : '☀ светлая тема';
+  localStorage.setItem('theme', t);
+}
+applyTheme(localStorage.getItem('theme') || 'dark');
+themeBtn.onclick = ()=>{
+  const current = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  applyTheme(current === 'light' ? 'dark' : 'light');
+};
+
+// bulk import
+function parseImportText(text){
+  text = text.trim();
+  if(!text) return [];
+  if(text.startsWith('[')){
+    try{
+      const arr = JSON.parse(text);
+      return arr.filter(x=>x && x.name && x.id).map(x=>({name:String(x.name), id:String(x.id)}));
+    }catch(e){ throw new Error('Некорректный JSON'); }
+  }
+  return text.split('\n').map(l=>l.trim()).filter(Boolean).map(line=>{
+    const sep = line.includes(';') ? ';' : (line.includes(',') ? ',' : '\t');
+    const parts = line.split(sep);
+    return {name:(parts[0]||'').trim(), id:(parts.slice(1).join(sep)||'').trim()};
+  }).filter(x=>x.name && x.id);
+}
+
+async function importItems(parsed){
+  const statusEl = document.getElementById('importStatus');
+  if(parsed.length === 0){
+    statusEl.textContent = 'Ничего не найдено для импорта';
+    return;
+  }
+  const existingIds = new Set(items.map(it=>it.id));
+  let added = 0;
+  parsed.forEach(it=>{
+    if(!existingIds.has(it.id)){
+      items.push(it);
+      existingIds.add(it.id);
+      added++;
+    }
+  });
+  await saveItems();
+  renderItems();
+  statusEl.textContent = `Добавлено ${added} из ${parsed.length} (дубликаты по ID пропущены)`;
+}
+
+document.getElementById('importBtn').onclick = async ()=>{
+  const statusEl = document.getElementById('importStatus');
+  try{
+    const parsed = parseImportText(document.getElementById('importText').value);
+    await importItems(parsed);
+    document.getElementById('importText').value = '';
+  }catch(e){
+    statusEl.textContent = 'Ошибка: ' + e.message;
+  }
+};
+
+document.getElementById('importFile').onchange = async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const statusEl = document.getElementById('importStatus');
+  try{
+    const text = await file.text();
+    let parsed;
+    if(file.name.endsWith('.json')){
+      const arr = JSON.parse(text);
+      parsed = arr.filter(x=>x && x.name && x.id).map(x=>({name:String(x.name), id:String(x.id)}));
+    }else{
+      // csv: expects header or plain name,id rows — try to detect "display_name" + guessed id columns
+      const lines = text.split('\n').map(l=>l.trim()).filter(Boolean);
+      const header = lines[0].toLowerCase();
+      let nameIdx = 0, idIdx = 1;
+      if(header.includes(',')){
+        const cols = lines[0].split(',').map(c=>c.trim().toLowerCase());
+        const foundName = cols.findIndex(c=>c.includes('display_name') || c==='name');
+        const foundId = cols.findIndex(c=>c.includes('guessed_id') || c==='id') ;
+        if(foundName>=0 && foundId>=0){
+          nameIdx = foundName; idIdx = foundId;
+          lines.shift();
+        }
+      }
+      parsed = lines.map(l=>{
+        const cols = l.split(',');
+        return {name:(cols[nameIdx]||'').trim(), id:(cols[idIdx]||'').trim()};
+      }).filter(x=>x.name && x.id);
+    }
+    await importItems(parsed);
+  }catch(err){
+    statusEl.textContent = 'Ошибка чтения файла: ' + err.message;
+  }
+  e.target.value = '';
+};
+
+// tabs
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.onclick = ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-db').style.display = btn.dataset.tab==='db' ? 'block':'none';
+    document.getElementById('tab-craft').style.display = btn.dataset.tab==='craft' ? 'block':'none';
+  };
+});
+
+// add item modal
+const addItemOverlay = document.getElementById('addItemOverlay');
+document.getElementById('openAddItem').onclick = ()=>{
+  document.getElementById('addItemError').style.display = 'none';
+  addItemOverlay.classList.add('show');
+};
+document.getElementById('closeAddItem').onclick = ()=> addItemOverlay.classList.remove('show');
+document.getElementById('confirmAddItem').onclick = async ()=>{
+  const errEl = document.getElementById('addItemError');
+  const name = document.getElementById('newItemName').value.trim();
+  const id = document.getElementById('newItemId').value.trim();
+  if(!name || !id){
+    errEl.textContent = 'Заполни оба поля';
+    errEl.style.display = 'block';
+    return;
+  }
+  try{
+    items.push({name, id});
+    await saveItems();
+    renderItems();
+    document.getElementById('newItemName').value='';
+    document.getElementById('newItemId').value='';
+    errEl.style.display = 'none';
+    addItemOverlay.classList.remove('show');
+  }catch(e){
+    errEl.textContent = 'Не удалось сохранить: ' + e.message;
+    errEl.style.display = 'block';
+  }
+};
+
+// crafting grid render
+function renderGrid(){
+  const grid3 = document.getElementById('grid3');
+  grid3.innerHTML='';
+  grid.forEach((cell, i)=>{
+    const div = document.createElement('div');
+    div.className = 'slot' + (cell ? ' filled' : '');
+    div.textContent = cell ? cell.name : '+';
+    div.onclick = ()=> openPicker(i);
+    grid3.appendChild(div);
+  });
+  const outSlot = document.getElementById('outputSlot');
+  outSlot.textContent = output ? output.name : 'пусто';
+}
+
+const pickOverlay = document.getElementById('pickOverlay');
+function openPicker(slotIndex){
+  activeSlotIndex = slotIndex;
+  document.getElementById('pickSearch').value='';
+  renderPickList('');
+  pickOverlay.classList.add('show');
+}
+document.getElementById('closePick').onclick = ()=> pickOverlay.classList.remove('show');
+document.getElementById('pickSearch').oninput = (e)=> renderPickList(e.target.value);
+document.getElementById('clearSlotBtn').onclick = ()=>{
+  if(activeSlotIndex === 9){ output = null; } else { grid[activeSlotIndex] = null; }
+  renderGrid();
+  pickOverlay.classList.remove('show');
+};
+document.getElementById('outputSlot').onclick = ()=> openPicker(9);
+
+function renderPickList(filter){
+  const list = document.getElementById('pickList');
+  list.innerHTML='';
+  const f = filter.toLowerCase();
+  const filtered = items.filter(it => it.name.toLowerCase().includes(f) || it.id.toLowerCase().includes(f));
+  if(filtered.length === 0){
+    list.innerHTML = '<div class="hint">Ничего не найдено. Добавь предметы во вкладке "База предметов".</div>';
+    return;
+  }
+  filtered.forEach(it=>{
+    const div = document.createElement('div');
+    div.className='picker-item';
+    div.innerHTML = `<span>${escapeHtml(it.name)}</span><span class="mono">${escapeHtml(it.id)}</span>`;
+    div.onclick = ()=>{
+      if(activeSlotIndex === 9){ output = it; } else { grid[activeSlotIndex] = it; }
+      renderGrid();
+      pickOverlay.classList.remove('show');
+    };
+    list.appendChild(div);
+  });
+}
+
+document.getElementById('clearGrid').onclick = ()=>{
+  grid = new Array(9).fill(null);
+  output = null;
+  document.getElementById('outputCount').value = 1;
+  renderGrid();
+};
+
+function buildZsCode(){
+  const name = document.getElementById('recipeName').value.trim() || 'my_recipe';
+  const count = parseInt(document.getElementById('outputCount').value) || 1;
+  if(!output){
+    return "// Укажи результат крафта (кликни по правому слоту)";
+  }
+  const rows = [];
+  for(let r=0;r<3;r++){
+    const rowItems = grid.slice(r*3, r*3+3).map(c => c ? `<item:${c.id}>` : 'null');
+    rows.push('        [' + rowItems.join(', ') + ']');
+  }
+  const outExpr = count > 1 ? `<item:${output.id}> * ${count}` : `<item:${output.id}>`;
+  return `craftingTable.addShaped("${name}", ${outExpr}, [\n${rows.join(',\n')}\n]);`;
+}
+
+document.getElementById('genCode').onclick = ()=>{
+  document.getElementById('codeOutput').textContent = buildZsCode();
+};
+
+document.getElementById('copyCode').onclick = async ()=>{
+  const text = document.getElementById('codeOutput').textContent;
+  try{
+    await navigator.clipboard.writeText(text);
+  }catch(e){/* clipboard may be unavailable */}
+};
+
+document.getElementById('saveRecipe').onclick = async ()=>{
+  const code = buildZsCode();
+  const name = document.getElementById('recipeName').value.trim() || 'my_recipe';
+  savedRecipes.push({
+    id: Date.now(),
+    name,
+    type: document.getElementById('recipeType').value,
+    grid: [...grid],
+    output,
+    count: parseInt(document.getElementById('outputCount').value)||1,
+    code
+  });
+  await saveRecipesToStorage();
+  renderSaved();
+  document.getElementById('codeOutput').textContent = code;
+};
+
+function renderSaved(){
+  const body = document.getElementById('savedBody');
+  const empty = document.getElementById('savedEmpty');
+  body.innerHTML='';
+  if(savedRecipes.length===0){ empty.style.display='block'; return; }
+  empty.style.display='none';
+  savedRecipes.forEach(rec=>{
+    const div = document.createElement('div');
+    div.className='saved-row';
+    div.innerHTML = `<span>${escapeHtml(rec.name)}${rec.output ? ' <span class="hint">('+escapeHtml(rec.output.name)+')</span>' : ''}</span>
+      <span>
+        <button class="icon-btn" data-copyname="${rec.id}">⧉ имя</button>
+        <button class="action" data-load="${rec.id}">Загрузить</button>
+        <button class="action danger" data-del="${rec.id}">Удалить</button>
+      </span>`;
+    body.appendChild(div);
+  });
+  body.querySelectorAll('button[data-copyname]').forEach(b=>{
+    b.onclick = ()=>{
+      const rec = savedRecipes.find(r=>r.id == b.dataset.copyname);
+      if(rec) copyToClipboard(rec.output ? rec.output.name : rec.name, b);
+    };
+  });
+  body.querySelectorAll('button[data-load]').forEach(b=>{
+    b.onclick = ()=>{
+      const rec = savedRecipes.find(r=>r.id == b.dataset.load);
+      if(!rec) return;
+      document.getElementById('recipeName').value = rec.name;
+      document.getElementById('recipeType').value = rec.type;
+      document.getElementById('outputCount').value = rec.count;
+      grid = [...rec.grid];
+      output = rec.output;
+      renderGrid();
+      document.getElementById('codeOutput').textContent = rec.code;
+    };
+  });
+  body.querySelectorAll('button[data-del]').forEach(b=>{
+    b.onclick = async ()=>{
+      savedRecipes = savedRecipes.filter(r=>r.id != b.dataset.del);
+      await saveRecipesToStorage();
+      renderSaved();
+    };
+  });
+}
+
+function buildCombinedZs(){
+  if(savedRecipes.length===0) return '// Нет сохранённых рецептов — сохрани хотя бы один';
+  return savedRecipes.map(r => `// ==== ${r.name} ====\n${r.code}`).join('\n\n');
+}
+
+function downloadText(text, filename){
+  const blob = new Blob([text], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+document.getElementById('combineBtn').onclick = ()=>{
+  document.getElementById('combinedOutput').textContent = buildCombinedZs();
+};
+document.getElementById('copyCombined').onclick = ()=>{
+  copyToClipboard(document.getElementById('combinedOutput').textContent);
+};
+document.getElementById('downloadCombined').onclick = ()=>{
+  const text = buildCombinedZs();
+  document.getElementById('combinedOutput').textContent = text;
+  downloadText(text, 'recipes.zs');
+};
+
+renderGrid();
+loadItems();
+loadRecipes();
+</script>
+</body>
+</html>
