@@ -1,0 +1,15 @@
+/* Общие стили */
+body { transition: background 0.3s, color 0.3s; font-family: sans-serif; }
+
+/* Светлая тема */
+body.light-theme { background-color: #ffffff; color: #333; }
+body.light-theme .code-panel { background-color: #f0f0f0; color: #333; border: 1px solid #ccc; }
+
+/* Темная тема */
+body.dark-theme { background-color: #1a1a1a; color: #eee; }
+body.dark-theme .code-panel { background-color: #000000; color: #0f0; border: 1px solid #444; }
+
+/* Окно входа */
+.login-box { text-align: center; margin-top: 20vh; }
+input { padding: 10px; margin: 10px; border-radius: 5px; border: 1px solid #999; }
+button { padding: 10px 20px; cursor: pointer; }
