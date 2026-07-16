@@ -1,0 +1,25 @@
+<!-- Добавь этот блок в начало <body> для экрана входа -->
+<div id="loginOverlay" class="overlay show" style="display:flex;">
+  <div class="modal">
+    <h3>Вход в систему</h3>
+    <input type="password" id="passInput" placeholder="Введите код доступа" style="width:100%;margin-bottom:10px;">
+    <button class="action" onclick="checkLogin()">Войти</button>
+  </div>
+</div>
+
+<script>
+// Добавь в начало скриптов
+function checkLogin() {
+  const code = document.getElementById('passInput').value;
+  if (code === "ADMIN_CODE") { // Замени на свой код
+    document.getElementById('loginOverlay').style.display = 'none';
+    window.userRole = 'admin';
+  } else if (code === "PLAYER_CODE") { // Замени на свой код
+    document.getElementById('loginOverlay').style.display = 'none';
+    window.userRole = 'player';
+    document.getElementById('openAddItem').style.display = 'none'; // Скрываем админские функции
+  } else {
+    alert("Неверный код!");
+  }
+}
+</script>
